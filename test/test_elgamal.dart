@@ -17,6 +17,6 @@ void main() {
     final cipherText = ECElGamal.encrypt(publicKey, plainText);
 
     final retrievedPlainText = ECElGamal.decrypt(privateKey, cipherText);
-    print('Retrieved message: ${retrievedPlainText.text}');
+    assert(retrievedPlainText.text == message);
   });
 }
