@@ -1,7 +1,7 @@
 import 'package:pointycastle/ecc/api.dart';
 import 'package:pointycastle/ecc/curves/secp521r1.dart';
-import 'package:psifos_mobile_crypto/src/crypto/ec_elgamal/ec_elgamal.dart';
-import 'package:psifos_mobile_crypto/src/crypto/ec_elgamal/ec_plaintext.dart';
+import 'package:psifos_mobile_crypto/crypto/ec_elgamal/ec_elgamal.dart';
+import 'package:psifos_mobile_crypto/crypto/ec_elgamal/ec_plaintext.dart';
 import 'package:test/test.dart';
 
 void main() {

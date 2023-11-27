@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:pointycastle/ecc/api.dart';
-import 'package:psifos_mobile_crypto/src/crypto/ec_elgamal/ec_point_converter.dart';
+import 'package:psifos_mobile_crypto/crypto/ec_elgamal/ec_point_converter.dart';
 
 class ECPlainText {
   String _text;

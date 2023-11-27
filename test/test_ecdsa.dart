@@ -2,7 +2,7 @@ import "dart:convert";
 import "dart:typed_data";
 
 import "package:pointycastle/export.dart";
-import "package:psifos_mobile_crypto/src/crypto/ecdsa/ecdsa.dart";
+import "package:psifos_mobile_crypto/crypto/ecdsa/ecdsa.dart";
 import "package:test/test.dart";
 
 void main() {

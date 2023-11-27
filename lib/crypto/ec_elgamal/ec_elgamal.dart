@@ -5,8 +5,8 @@ import 'package:pointycastle/key_generators/api.dart';
 import 'package:pointycastle/ecc/api.dart';
 
 import 'package:pointycastle/src/platform_check/platform_check.dart';
-import 'package:psifos_mobile_crypto/src/crypto/ec_elgamal/ec_ciphertext.dart';
-import 'package:psifos_mobile_crypto/src/crypto/ec_elgamal/ec_plaintext.dart';
+import 'package:psifos_mobile_crypto/crypto/ec_elgamal/ec_ciphertext.dart';
+import 'package:psifos_mobile_crypto/crypto/ec_elgamal/ec_plaintext.dart';
 
 class ECElGamal {
   static AsymmetricKeyPair generateKeyPair(ECDomainParameters domainParams) {
