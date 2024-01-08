@@ -1,7 +1,7 @@
 import 'dart:typed_data';
-import 'package:convert/convert.dart';
 import 'package:pointycastle/ecc/api.dart';
 import 'package:pointycastle/ecc/ecc_fp.dart' as fp;
+import 'package:psifos_mobile_crypto/utils/convert.dart';
 
 class ECPointConverter {
   static int _messagePaddingByteSize = 3;
@@ -28,8 +28,10 @@ class ECPointConverter {
   static Uint8List fromECPointToBytes(ECPoint point) {
     // Retrieve the original message from the point
     final pointBigInt = point.x!.toBigInteger()!;
-    final xBytes = Uint8List.fromList(
-        hex.decode(pointBigInt.toRadixString(16).padLeft(64, '0')));
+
+    // xBytes = message || 0xff || counter
+    final xBytes = Convert.fromBigIntToUint8List(pointBigInt);
+
     return xBytes.sublist(0, xBytes.length - _messagePaddingByteSize);
   }
 
@@ -61,7 +63,7 @@ class ECPointConverter {
         ..[messageBytes.length + 1] = (counter >> 8) & 0xFF // High byte
         ..[messageBytes.length + 2] = counter & 0xFF; // Low byte
 
-      final x = BigInt.parse(hex.encode(extendedMessageBytes), radix: 16);
+      final x = Convert.fromUint8ListToBigInt(extendedMessageBytes);
       final y = _calculateCurveY(x, curve);
       if (y != null) {
         return curve.createPoint(x, y);
