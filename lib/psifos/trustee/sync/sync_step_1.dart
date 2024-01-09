@@ -41,7 +41,7 @@ class TrusteeSyncStep1 {
   }
 
   /* Handles step 1 of the sync protocol */
-  static Map<String, dynamic> handleSyncStep1(
+  static Map<String, dynamic> handle(
       ECPrivateKey signaturePrivateKey,
       List<RSAPublicKey> encryptionPublicKeys,
       ecc_api.ECDomainParameters domainParams,
