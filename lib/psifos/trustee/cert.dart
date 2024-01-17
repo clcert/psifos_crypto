@@ -9,10 +9,10 @@ class Certificate {
       ECPrivateKey signaturePrivateKey,
       ECPublicKey signaturePublicKey,
       RSAPublicKey encryptionPublicKey) {
-    final certificate = {
+    final certificate = json.encode({
       'signature_public_key': signaturePublicKey.toJson(),
       'encryption_public_key': encryptionPublicKey.toJson(),
-    }.toString();
+    });
 
     final certificateSignature = ECDSA
         .sign(
@@ -22,8 +22,8 @@ class Certificate {
         .toJson();
 
     return {
-      'json_encoded_keys': certificate,
-      'signature': certificateSignature,
+      "json_encoded_keys": certificate,
+      "signature": certificateSignature,
     };
   }
 }

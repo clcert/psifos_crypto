@@ -16,13 +16,15 @@ class TrusteeSyncStep1 {
   static Map<String, dynamic> parseInput(Map<String, dynamic> input) {
     final domainParams = ECCurve_secp521r1();
     List<RSAPublicKey> encryptionPublicKeys = [];
+
     for (final certJson in input["certificates"]) {
       /* Verify certificate signature */
       final signature = ECSignature.fromJson(certJson["signature"]);
-      final certificate = {
+
+      final certificate = json.encode({
         'signature_public_key': certJson["signature_public_key"],
         'encryption_public_key': certJson["encryption_public_key"],
-      }.toString();
+      });
 
       final signaturePublicKey =
           ECPublicKey.fromJson(certJson["signature_public_key"], domainParams);
@@ -33,6 +35,8 @@ class TrusteeSyncStep1 {
       if (isValid) {
         encryptionPublicKeys
             .add(RSAPublicKey.fromJson(certJson["encryption_public_key"]));
+      } else {
+        throw Exception("Invalid certificate signature");
       }
     }
     return {

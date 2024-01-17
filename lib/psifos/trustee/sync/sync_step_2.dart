@@ -13,7 +13,7 @@ import 'package:psifos_mobile_crypto/utils/convert.dart';
 class TrusteeSyncStep2 {
   /* Parses step 2 input into usable classes */
   static Map<String, dynamic> parseInput(Map<String, dynamic> keyPairs,
-      List<Map<String, dynamic>> certificates, Map<String, dynamic> input) {
+      Map<String, dynamic> certificates, Map<String, dynamic> input) {
     final domainParams = ECCurve_secp521r1();
 
     /* parse private keys from keypair */
@@ -24,7 +24,7 @@ class TrusteeSyncStep2 {
 
     /* parse signature keys from certificates*/
     List<ECPublicKey> signaturePublicKeys = [];
-    for (final certJson in certificates) {
+    for (final certJson in certificates["certificates"]) {
       /* No need to verify certificate signature, already done in step 1 */
       signaturePublicKeys.add(
           ECPublicKey.fromJson(certJson["signature_public_key"], domainParams));
