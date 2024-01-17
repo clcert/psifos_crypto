@@ -30,7 +30,7 @@ class ECPointConverter {
     final pointBigInt = point.x!.toBigInteger()!;
 
     // xBytes = message || 0xff || counter
-    final xBytes = Convert.fromBigIntToUint8List(pointBigInt, addPadding: true);
+    final xBytes = Convert.fromBigIntToUint8List(pointBigInt);
 
     return xBytes.sublist(0, xBytes.length - _messagePaddingByteSize);
   }
