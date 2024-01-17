@@ -31,12 +31,10 @@ class TrusteeSyncStep2 {
     }
 
     /* parse the signed encrypted shares */
-    List<Map<String, dynamic>> signedEncryptedShares =
-        input['signed_encrypted_shares'];
+    final signedEncryptedShares = input['signed_encrypted_shares'];
 
     /* parse the signed broadcasts */
-    List<List<Map<String, dynamic>>> signedBroadcasts =
-        input['signed_broadcasts'];
+    final signedBroadcasts = input['signed_broadcasts'];
 
     return {
       'encryption_private_key': encryptionPrivateKey,
@@ -51,8 +49,8 @@ class TrusteeSyncStep2 {
       RSAPrivateKey encryptionPrivateKey,
       ECPrivateKey signaturePrivateKey,
       List<ECPublicKey> signaturePublicKeys,
-      List<Map<String, dynamic>> signedEncryptedShares,
-      List<List<Map<String, dynamic>>> signedBroadcasts,
+      List<dynamic> signedEncryptedShares,
+      List<dynamic> signedBroadcasts,
       int threshold,
       int numParticipants,
       int participantId) {
@@ -74,8 +72,10 @@ class TrusteeSyncStep2 {
       final participantSignedBroadcasts = signedBroadcasts[j - 1];
 
       /* verify the encrypted share signature */
-      BigInt encryptedShare = participantSignedEncryptedShare['share'];
-      ECSignature shareSignature = participantSignedEncryptedShare['signature'];
+      BigInt encryptedShare =
+          BigInt.parse(participantSignedEncryptedShare['encrypted_share']);
+      ECSignature shareSignature =
+          ECSignature.fromJson(participantSignedEncryptedShare['signature']);
       final encryptedShareBytes = Convert.fromBigIntToUint8List(encryptedShare);
       final verified = ECDSA.verify(
           participantSignatureKey, encryptedShareBytes, shareSignature);
