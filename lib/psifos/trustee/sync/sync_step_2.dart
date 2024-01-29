@@ -120,7 +120,7 @@ class TrusteeSyncStep2 {
         if (!verified) {
           throw Exception('Broadcast signature could not be verified.');
         }
-        broadcasts.add(signedBroadcast['broadcast']);
+        broadcasts.add(broadcast);
       }
 
       /* validate the share */
