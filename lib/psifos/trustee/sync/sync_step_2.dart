@@ -101,8 +101,8 @@ class TrusteeSyncStep2 {
         /* get broadcast and signature */
         print(
             "raw recv broadcast: -(${signedBroadcast['broadcast']['x']},${signedBroadcast['broadcast']['y']})-");
-        BigInt x = BigInt.from(signedBroadcast['broadcast']['x']);
-        BigInt y = BigInt.from(signedBroadcast['broadcast']['y']);
+        BigInt x = BigInt.parse(signedBroadcast['broadcast']['x']);
+        BigInt y = BigInt.parse(signedBroadcast['broadcast']['y']);
         print("parsed bigint recv broadcast: -(${x},${y})-");
 
         ecc_api.ECPoint broadcast = domainParams.curve.createPoint(x, y);
