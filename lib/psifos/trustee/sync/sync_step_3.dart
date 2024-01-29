@@ -6,8 +6,9 @@ import 'package:psifos_mobile_crypto/crypto/ecc/ec_tdkg/ec_tdkg.dart';
 class TrusteeSyncStep3 {
   /* parses step 3 input into usable classes */
   static Map<String, dynamic> parseInput(Map<String, dynamic> input) {
-    List<BigInt> recv_shares =
-        input['recv_shares'].map((e) => BigInt.parse(e)).toList();
+    List<BigInt> recv_shares = input['recv_shares']
+        .map((e) => BigInt.parse(e['encrypted_share']))
+        .toList();
     return {
       'recv_shares': recv_shares,
     };
