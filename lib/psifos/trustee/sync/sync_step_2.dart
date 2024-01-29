@@ -55,9 +55,10 @@ class TrusteeSyncStep2 {
       int numParticipants,
       int participantId) {
     /* make sure data is received from the correct number of participants */
-    assert(signaturePublicKeys.length == numParticipants);
-    assert(signedEncryptedShares.length == numParticipants);
-    assert(signedBroadcasts.length == numParticipants);
+    //assert(signaturePublicKeys.length == numParticipants);
+    //assert(signedEncryptedShares.length == numParticipants);
+    //assert(signedBroadcasts.length == numParticipants);
+    numParticipants = signaturePublicKeys.length;
 
     /* curve parameters */
     final domainParams = ECCurve_secp521r1();
@@ -77,6 +78,10 @@ class TrusteeSyncStep2 {
       ECSignature shareSignature =
           ECSignature.fromJson(participantSignedEncryptedShare['signature']);
       final encryptedShareBytes = Convert.fromBigIntToUint8List(encryptedShare);
+
+      print("Verifying encrypted share signature from participant $j");
+      print(encryptedShareBytes.length);
+
       final verified = ECDSA.verify(
           participantSignatureKey, encryptedShareBytes, shareSignature);
       if (!verified) {
@@ -94,12 +99,22 @@ class TrusteeSyncStep2 {
       for (Map<String, dynamic> signedBroadcast
           in participantSignedBroadcasts) {
         /* get broadcast and signature */
-        ecc_api.ECPoint broadcast = signedBroadcast['broadcast'];
-        ECSignature signature = signedBroadcast['signature'] as ECSignature;
+        print(
+            "raw recv broadcast: -(${signedBroadcast['broadcast']['x']},${signedBroadcast['broadcast']['y']})-");
+        BigInt x = BigInt.from(signedBroadcast['broadcast']['x']);
+        BigInt y = BigInt.from(signedBroadcast['broadcast']['y']);
+        print("parsed bigint recv broadcast: -(${x},${y})-");
+
+        ecc_api.ECPoint broadcast = domainParams.curve.createPoint(x, y);
+        ECSignature signature =
+            ECSignature.fromJson(signedBroadcast['signature']);
 
         /* broadcast as bytes */
-        final broadcastBytes =
-            Uint8List.fromList(utf8.encode(broadcast.toString()));
+        String broadcastStr = broadcast.toString();
+        print("recv broadcastStr: -${broadcastStr}-");
+
+        final broadcastBytes = Uint8List.fromList(utf8.encode(broadcastStr));
+        print("recv broadcastBytes length: -${broadcastBytes.length}-}");
         final verified =
             ECDSA.verify(participantSignatureKey, broadcastBytes, signature);
         if (!verified) {

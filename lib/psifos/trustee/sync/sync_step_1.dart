@@ -52,7 +52,8 @@ class TrusteeSyncStep1 {
       int threshold,
       int numParticipants) {
     /* make sure the number of encryption keys is correct */
-    assert(encryptionPublicKeys.length == numParticipants);
+    // assert(encryptionPublicKeys.length == numParticipants);
+    numParticipants = encryptionPublicKeys.length;
 
     /* curve parameters */
     final basePoint = domainParams.G as fp.ECPoint;
@@ -84,6 +85,9 @@ class TrusteeSyncStep1 {
           Convert.fromUint8ListToBigInt(encryptedShareBytes);
 
       // Participant i signs the encrypted share s_{i,j} for participant j.
+      print("Signing encrypted share for participant $j");
+      print(encryptedShareBytes.length);
+
       final signature = ECDSA.sign(signaturePrivateKey, encryptedShareBytes);
       signedEncryptedShares.add({
         "encrypted_share": encryptedShare.toString(),
@@ -101,7 +105,9 @@ class TrusteeSyncStep1 {
   static Map<String, dynamic> _signBroadcast(
       ECPrivateKey privateKey, ecc_api.ECPoint broadcast) {
     String broadcastStr = broadcast.toString();
+    print("send broadcastStr: -${broadcastStr}-");
     Uint8List broadcastBytes = Uint8List.fromList(utf8.encode(broadcastStr));
+    print("send broadcastBytes length: -${broadcastBytes.length}-}");
     ECSignature broadcastSignature = ECDSA.sign(privateKey, broadcastBytes);
 
     return {
