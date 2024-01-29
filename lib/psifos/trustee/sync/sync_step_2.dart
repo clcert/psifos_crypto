@@ -66,7 +66,7 @@ class TrusteeSyncStep2 {
     final curveOrder = domainParams.n;
 
     List<Map<String, dynamic>> acknowledgements = [];
-    List<BigInt> validShares = [];
+    List<String> validShares = [];
     for (int j = 1; j <= numParticipants; j++) {
       final participantSignatureKey = signaturePublicKeys[j - 1];
       final participantSignedEncryptedShare = signedEncryptedShares[j - 1];
@@ -128,7 +128,8 @@ class TrusteeSyncStep2 {
       final valid = ECTDKG.validateShare(
           BigInt.from(j), decryptedShare, broadcasts, basePoint, curveOrder);
       if (valid) {
-        validShares.add(decryptedShare);
+        String shareStr = decryptedShare.toString();
+        validShares.add(shareStr);
         ack = ECDSA.sign(signaturePrivateKey,
             Uint8List.fromList("${participantId}|${j}".codeUnits));
       } else {
