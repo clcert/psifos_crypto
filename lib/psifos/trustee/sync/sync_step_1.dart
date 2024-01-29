@@ -52,8 +52,7 @@ class TrusteeSyncStep1 {
       int threshold,
       int numParticipants) {
     /* make sure the number of encryption keys is correct */
-    // assert(encryptionPublicKeys.length == numParticipants);
-    numParticipants = encryptionPublicKeys.length;
+    assert(encryptionPublicKeys.length == numParticipants);
 
     /* curve parameters */
     final basePoint = domainParams.G as fp.ECPoint;

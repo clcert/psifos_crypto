@@ -55,10 +55,9 @@ class TrusteeSyncStep2 {
       int numParticipants,
       int participantId) {
     /* make sure data is received from the correct number of participants */
-    //assert(signaturePublicKeys.length == numParticipants);
-    //assert(signedEncryptedShares.length == numParticipants);
-    //assert(signedBroadcasts.length == numParticipants);
-    numParticipants = signaturePublicKeys.length;
+    assert(signaturePublicKeys.length == numParticipants);
+    assert(signedEncryptedShares.length == numParticipants);
+    assert(signedBroadcasts.length == numParticipants);
 
     /* curve parameters */
     final domainParams = ECCurve_secp521r1();

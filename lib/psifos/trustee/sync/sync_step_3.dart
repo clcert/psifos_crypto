@@ -13,7 +13,11 @@ class TrusteeSyncStep3 {
     };
   }
 
-  static Map<String, String> handle(List<BigInt> recv_shares) {
+  static Map<String, String> handle(List<BigInt> recv_shares, int threshold,
+      int numParticipants, int participantId) {
+    /* make sure data is received from the correct number of participants */
+    assert(recv_shares.length == numParticipants);
+
     /* curve parameters */
     final domainParams = ECCurve_secp521r1();
     final basePoint = domainParams.G as fp.ECPoint;
