@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:pointycastle/ecc/api.dart' as ecc_api;
-import 'package:pointycastle/ecc/curves/secp521r1.dart';
 import 'package:pointycastle/ecc/ecc_fp.dart' as fp;
 import 'package:psifos_mobile_crypto/crypto/ecc/ec_dsa/export.dart';
 import 'package:psifos_mobile_crypto/crypto/ecc/ec_keypair/export.dart';
@@ -12,9 +11,12 @@ import 'package:psifos_mobile_crypto/utils/convert.dart';
 
 class TrusteeSyncStep2 {
   /* Parses step 2 input into usable classes */
-  static Map<String, dynamic> parseInput(Map<String, dynamic> keyPairs,
-      Map<String, dynamic> certificates, Map<String, dynamic> input) {
-    final domainParams = ECCurve_secp521r1();
+  static Map<String, dynamic> parseInput(
+      Map<String, dynamic> keyPairs,
+      Map<String, dynamic> certificates,
+      Map<String, dynamic> input,
+      String curveName) {
+    final domainParams = ecc_api.ECDomainParameters(curveName);
 
     /* parse private keys from keypair */
     final encryptionPrivateKey =
@@ -51,6 +53,7 @@ class TrusteeSyncStep2 {
       List<ECPublicKey> signaturePublicKeys,
       List<dynamic> signedEncryptedShares,
       List<dynamic> signedBroadcasts,
+      String curveName,
       int threshold,
       int numParticipants,
       int participantId) {
@@ -60,7 +63,7 @@ class TrusteeSyncStep2 {
     assert(signedBroadcasts.length == numParticipants);
 
     /* curve parameters */
-    final domainParams = ECCurve_secp521r1();
+    final domainParams = ecc_api.ECDomainParameters(curveName);
     final basePoint = domainParams.G as fp.ECPoint;
     final curveOrder = domainParams.n;
 

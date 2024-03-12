@@ -1,4 +1,3 @@
-import 'package:pointycastle/ecc/curves/secp521r1.dart';
 import 'package:pointycastle/ecc/ecc_fp.dart' as fp;
 import 'package:pointycastle/ecc/api.dart' as ecc_api;
 import 'package:psifos_mobile_crypto/crypto/ecc/ec_tdkg/ec_tdkg.dart';
@@ -13,13 +12,13 @@ class TrusteeSyncStep3 {
     return recv_shares;
   }
 
-  static Map<String, String> handle(List<BigInt> recv_shares, int threshold,
-      int numParticipants, int participantId) {
+  static Map<String, String> handle(List<BigInt> recv_shares, String curveName,
+      int threshold, int numParticipants, int participantId) {
     /* make sure data is received from the correct number of participants */
     assert(recv_shares.length == numParticipants);
 
     /* curve parameters */
-    final domainParams = ECCurve_secp521r1();
+    final domainParams = ecc_api.ECDomainParameters(curveName);
     final basePoint = domainParams.G as fp.ECPoint;
 
     /* First we compute the share of the secret */
