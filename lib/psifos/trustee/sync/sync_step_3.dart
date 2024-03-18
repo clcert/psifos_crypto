@@ -4,12 +4,15 @@ import 'package:psifos_mobile_crypto/crypto/ecc/ec_tdkg/ec_tdkg.dart';
 
 class TrusteeSyncStep3 {
   /* parses step 3 input into usable classes */
-  static List<BigInt> parseInput(Map<String, dynamic> input) {
+  static Map<String, dynamic> parseInput(Map<String, dynamic> input) {
+    /* parse the received shares */
     List<BigInt> recv_shares = [];
     for (final recv_share in input['recv_shares']) {
       recv_shares.add(BigInt.parse(recv_share['encrypted_share']));
     }
-    return recv_shares;
+    return {
+      'recv_shares': recv_shares,
+    };
   }
 
   static Map<String, String> handle(List<BigInt> recv_shares, String curveName,
