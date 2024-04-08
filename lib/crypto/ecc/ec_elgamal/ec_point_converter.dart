@@ -51,8 +51,6 @@ class ECPointConverter {
 
     int counter = 0;
     while (true) {
-      print('Counter: $counter');
-
       // Ensure the counter is within the range of 2 bytes
       if (counter > 0xFFFF) {
         throw Exception('Counter has exceeded the range of 2 bytes.');

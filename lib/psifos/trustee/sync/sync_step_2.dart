@@ -35,15 +35,15 @@ class TrusteeSyncStep2 {
     /* parse the signed encrypted shares */
     final signedEncryptedShares = input['signed_encrypted_shares'];
 
-    /* parse the signed broadcasts */
-    final signedBroadcasts = input['signed_broadcasts'];
+    /* parse the signed coefficients */
+    final signedCoefficients = input['signed_coefficients'];
 
     return {
       'encryption_private_key': encryptionPrivateKey,
       'signature_private_key': signaturePrivateKey,
       'signature_public_keys': signaturePublicKeys,
       'signed_encrypted_shares': signedEncryptedShares,
-      'signed_broadcasts': signedBroadcasts,
+      'signed_coefficients': signedCoefficients,
     };
   }
 
@@ -52,7 +52,7 @@ class TrusteeSyncStep2 {
       ECPrivateKey signaturePrivateKey,
       List<ECPublicKey> signaturePublicKeys,
       List<dynamic> signedEncryptedShares,
-      List<dynamic> signedBroadcasts,
+      List<dynamic> signedCoefficients,
       String curveName,
       int threshold,
       int numParticipants,
@@ -60,7 +60,7 @@ class TrusteeSyncStep2 {
     /* make sure data is received from the correct number of participants */
     assert(signaturePublicKeys.length == numParticipants);
     assert(signedEncryptedShares.length == numParticipants);
-    assert(signedBroadcasts.length == numParticipants);
+    assert(signedCoefficients.length == numParticipants);
 
     /* curve parameters */
     final domainParams = ecc_api.ECDomainParameters(curveName);
@@ -72,7 +72,7 @@ class TrusteeSyncStep2 {
     for (int j = 1; j <= numParticipants; j++) {
       final participantSignatureKey = signaturePublicKeys[j - 1];
       final participantSignedEncryptedShare = signedEncryptedShares[j - 1];
-      final participantSignedBroadcasts = signedBroadcasts[j - 1];
+      final participantSignedCoefficients = signedCoefficients[j - 1];
 
       /* verify the encrypted share signature */
       BigInt encryptedShare =
@@ -80,9 +80,6 @@ class TrusteeSyncStep2 {
       ECSignature shareSignature =
           ECSignature.fromJson(participantSignedEncryptedShare['signature']);
       final encryptedShareBytes = Convert.fromBigIntToUint8List(encryptedShare);
-
-      print("Verifying encrypted share signature from participant $j");
-      print(encryptedShareBytes.length);
 
       final verified = ECDSA.verify(
           participantSignatureKey, encryptedShareBytes, shareSignature);
@@ -96,39 +93,34 @@ class TrusteeSyncStep2 {
       BigInt decryptedShare =
           Convert.fromUint8ListToBigInt(decryptedShareBytes);
 
-      /* verify the broadcasts signatures */
-      List<ecc_api.ECPoint> broadcasts = [];
-      for (Map<String, dynamic> signedBroadcast
-          in participantSignedBroadcasts) {
-        /* get broadcast and signature */
-        print(
-            "raw recv broadcast: -(${signedBroadcast['broadcast']['x']},${signedBroadcast['broadcast']['y']})-");
-        BigInt x = BigInt.parse(signedBroadcast['broadcast']['x']);
-        BigInt y = BigInt.parse(signedBroadcast['broadcast']['y']);
-        print("parsed bigint recv broadcast: -(${x},${y})-");
+      /* verify the coefficients signatures */
+      List<ecc_api.ECPoint> coefficients = [];
+      for (Map<String, dynamic> signedCoefficient
+          in participantSignedCoefficients) {
+        /* get coefficient and signature */
+        BigInt x = BigInt.parse(signedCoefficient['coefficient']['x']);
+        BigInt y = BigInt.parse(signedCoefficient['coefficient']['y']);
 
-        ecc_api.ECPoint broadcast = domainParams.curve.createPoint(x, y);
+        ecc_api.ECPoint coefficient = domainParams.curve.createPoint(x, y);
         ECSignature signature =
-            ECSignature.fromJson(signedBroadcast['signature']);
+            ECSignature.fromJson(signedCoefficient['signature']);
 
-        /* broadcast as bytes */
-        String broadcastStr = broadcast.toString();
-        print("recv broadcastStr: -${broadcastStr}-");
-
-        final broadcastBytes = Uint8List.fromList(utf8.encode(broadcastStr));
-        print("recv broadcastBytes length: -${broadcastBytes.length}-}");
+        /* coefficient as bytes */
+        String coefficientStr = coefficient.toString();
+        final coefficientBytes =
+            Uint8List.fromList(utf8.encode(coefficientStr));
         final verified =
-            ECDSA.verify(participantSignatureKey, broadcastBytes, signature);
+            ECDSA.verify(participantSignatureKey, coefficientBytes, signature);
         if (!verified) {
-          throw Exception('Broadcast signature could not be verified.');
+          throw Exception('Coefficient signature could not be verified.');
         }
-        broadcasts.add(broadcast);
+        coefficients.add(coefficient);
       }
 
       /* validate the share */
       ECSignature ack;
       final valid = ECTDKG.validateShare(
-          BigInt.from(j), decryptedShare, broadcasts, basePoint, curveOrder);
+          BigInt.from(j), decryptedShare, coefficients, basePoint, curveOrder);
       if (valid) {
         String shareStr = decryptedShare.toString();
         validShares.add(shareStr);

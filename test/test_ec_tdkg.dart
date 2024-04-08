@@ -14,18 +14,16 @@ void main() {
     final curveOrder = domainParams.n;
 
     final secret = ECTDKG.randomScalar(curveOrder);
-    final coefficients =
-        ECTDKG.generateCoefficients(secret, threshold, curveOrder);
-    final broadcasts = ECTDKG.generateBroadcasts(coefficients, basePoint);
+    final scalars = ECTDKG.generateScalars(secret, threshold, curveOrder);
+    final coefficients = ECTDKG.generateCoefficients(scalars, basePoint);
 
     for (int j = 0; j < numParticipants; j++) {
       // Participant i calculates a share s_{i,j} for participant j.
-      final share =
-          ECTDKG.calculateShare(BigInt.from(j), coefficients, curveOrder);
+      final share = ECTDKG.calculateShare(BigInt.from(j), scalars, curveOrder);
 
       // Participant j validates the share s_{i,j} from participant i.
       final valid = ECTDKG.validateShare(
-          BigInt.from(j), share, broadcasts, basePoint, curveOrder);
+          BigInt.from(j), share, coefficients, basePoint, curveOrder);
 
       // Expect the share to be valid.
       expect(valid, true);

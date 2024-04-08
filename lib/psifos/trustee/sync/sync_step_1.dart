@@ -59,23 +59,21 @@ class TrusteeSyncStep1 {
     final basePoint = domainParams.G as fp.ECPoint;
     final curveOrder = domainParams.n;
 
-    /* generate the secret, coefficients and broadcasts */
+    /* generate the secret, scalars and coefficients */
     final secret = ECTDKG.randomScalar(curveOrder);
-    final coefficients =
-        ECTDKG.generateCoefficients(secret, threshold, curveOrder);
-    final broadcasts = ECTDKG.generateBroadcasts(coefficients, basePoint);
+    final scalars = ECTDKG.generateScalars(secret, threshold, curveOrder);
+    final coefficients = ECTDKG.generateCoefficients(scalars, basePoint);
 
-    /* sign the broadcasts */
-    final signedBroadcasts = broadcasts
-        .map((b) => TrusteeSyncStep1._signBroadcast(signaturePrivateKey, b))
+    /* sign the coefficients */
+    final signedCoefficients = coefficients
+        .map((b) => TrusteeSyncStep1._signCoefficient(signaturePrivateKey, b))
         .toList();
 
     /* calculate, encrypt and sign the shares */
     List<Map<String, dynamic>> signedEncryptedShares = [];
     for (int j = 1; j <= numParticipants; j++) {
       // Participant i calculates a share s_{i,j} for participant j.
-      BigInt share =
-          ECTDKG.calculateShare(BigInt.from(j), coefficients, curveOrder);
+      BigInt share = ECTDKG.calculateShare(BigInt.from(j), scalars, curveOrder);
 
       // Participant i encrypts the share s_{i,j} for participant j.
       final publicKey = encryptionPublicKeys[j - 1];
@@ -85,9 +83,6 @@ class TrusteeSyncStep1 {
           Convert.fromUint8ListToBigInt(encryptedShareBytes);
 
       // Participant i signs the encrypted share s_{i,j} for participant j.
-      print("Signing encrypted share for participant $j");
-      print(encryptedShareBytes.length);
-
       final signature = ECDSA.sign(signaturePrivateKey, encryptedShareBytes);
       signedEncryptedShares.add({
         "encrypted_share": encryptedShare.toString(),
@@ -96,23 +91,22 @@ class TrusteeSyncStep1 {
     }
 
     return {
-      "signed_broadcasts": signedBroadcasts,
+      "signed_coefficients": signedCoefficients,
       "signed_shares": signedEncryptedShares,
     };
   }
 
-  /* Signs a broadcast */
-  static Map<String, dynamic> _signBroadcast(
-      ECPrivateKey privateKey, ecc_api.ECPoint broadcast) {
-    String broadcastStr = broadcast.toString();
-    print("send broadcastStr: -${broadcastStr}-");
-    Uint8List broadcastBytes = Uint8List.fromList(utf8.encode(broadcastStr));
-    print("send broadcastBytes length: -${broadcastBytes.length}-}");
-    ECSignature broadcastSignature = ECDSA.sign(privateKey, broadcastBytes);
+  /* Signs a coefficient */
+  static Map<String, dynamic> _signCoefficient(
+      ECPrivateKey privateKey, ecc_api.ECPoint coefficient) {
+    String coefficientStr = coefficient.toString();
+    Uint8List coefficientBytes =
+        Uint8List.fromList(utf8.encode(coefficientStr));
+    ECSignature coefficientSignature = ECDSA.sign(privateKey, coefficientBytes);
 
     return {
-      "broadcast": broadcastStr,
-      "signature": broadcastSignature.toJson(),
+      "coefficient": coefficientStr,
+      "signature": coefficientSignature.toJson(),
     };
   }
 }

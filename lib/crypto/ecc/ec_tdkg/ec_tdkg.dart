@@ -1,63 +1,58 @@
-import 'dart:typed_data';
 import 'package:pointycastle/api.dart';
 import 'package:pointycastle/ecc/api.dart' as ecc_api;
-import 'package:psifos_mobile_crypto/utils/convert.dart';
 import 'package:pointycastle/src/platform_check/platform_check.dart';
 
 class ECTDKG {
   static BigInt randomScalar(BigInt curveOrder) {
     /*
       Returns a random scalar in the range [1, curveOrder).
-      This function is used to generate a secret and coefficients
-      for the polynomial.
     */
     final secureRandom = SecureRandom("Fortuna")
       ..seed(
           KeyParameter(Platform.instance.platformEntropySource().getBytes(32)));
-    final int bytesLen = (curveOrder.bitLength + 7) ~/ 8;
-    final Uint8List randomBytes = Uint8List(bytesLen);
 
+    // Get the bit length of the order
+    int orderBitLength = curveOrder.bitLength;
+
+    // Generate a random integer with the same bit length as the order
     BigInt randomInt;
     do {
-      for (int i = 0; i < bytesLen; i++) {
-        randomBytes[i] = secureRandom.nextUint8();
-      }
-      randomInt = Convert.fromUint8ListToBigInt(randomBytes);
-    } while (randomInt < BigInt.one || randomInt >= curveOrder);
+      randomInt = secureRandom.nextBigInteger(orderBitLength);
+    } while (randomInt >= curveOrder || randomInt <= BigInt.zero);
 
     return randomInt;
   }
 
-  static List<BigInt> generateCoefficients(
+  static List<BigInt> generateScalars(
       BigInt secret, int threshold, BigInt curveOrder) {
     /*
       returns t coefficients [a_{0}, ..., a_{t-1}]
       a_{0}: secret
     */
-    List<BigInt> coeffs = [secret];
+    List<BigInt> scalars = [secret];
     for (int k = 0; k < threshold - 1; k++) {
-      coeffs.add(randomScalar(curveOrder));
+      scalars.add(randomScalar(curveOrder));
     }
-    return coeffs;
+    return scalars;
   }
 
   static BigInt calculateShare(
-      BigInt j, List<BigInt> coefficients, BigInt curveOrder) {
+      BigInt j, List<BigInt> scalars, BigInt curveOrder) {
     /*
     Participant i calculates a share s_{i,j} for participant j.
     This function is called by participant i. The share is calculated
     by evaluating the polynomial f(x) at x=j:
 
     f(x) = a_{0} + a_{1} * j + ... + a_{t-1} * j^(t-1) mod n
-    t coefficients, t-1 degree polynomial
+    t scalars, t-1 degree polynomial
     n: curve order
     a0: secret
     j: receiver index
     */
 
     BigInt share = BigInt.zero;
-    for (int exp = 0; exp < coefficients.length; exp++) {
-      BigInt coeff = coefficients[exp];
+    for (int exp = 0; exp < scalars.length; exp++) {
+      BigInt coeff = scalars[exp];
       BigInt expTerm = j.modPow(BigInt.from(exp), curveOrder);
       BigInt mulTerm = (coeff * expTerm) % curveOrder;
       share = (share + mulTerm) % curveOrder;
@@ -65,37 +60,38 @@ class ECTDKG {
     return share % curveOrder;
   }
 
-  static List<ecc_api.ECPoint> generateBroadcasts(
-    List<BigInt> coefficients,
+  static List<ecc_api.ECPoint> generateCoefficients(
+    List<BigInt> scalars,
     ecc_api.ECPoint basePoint,
   ) {
-    return coefficients.map((BigInt coeff) => (basePoint * coeff)!).toList();
+    return scalars.map((BigInt coeff) => (basePoint * coeff)!).toList();
   }
 
   static bool validateShare(
       BigInt j,
       BigInt share,
-      List<ecc_api.ECPoint> broadcasts,
+      List<ecc_api.ECPoint> coefficients,
       ecc_api.ECPoint basePoint,
       BigInt curveOrder) {
     /*
-      Participant j recieves a share s_{i,j} and a set of broadcasts
+      Participant j recieves a share s_{i,j} and a set of coefficients
       [A_{i,0}, ..., A_{i,t-1}] from participant i. This function
       must be called by participant j to validate the share s_{i,j}.
 
-      For a share to be valid, the sum of the broadcasts must be
-      equal to the base point multiplied by the share:
+      For a share to be valid, the sum of the coefficients multiplied by j
+      to the power of the coefficient index must be equal to the base point
+      multiplied by the share:
 
       >>> rightSide = A_{i,0} + A_{i,1} * j + ... + A_{i,t-1} * j^(t-1)
       >>> leftSide = share * G
       >>> valid if: leftSide == rightSide
     */
 
-    ecc_api.ECPoint rightSide = broadcasts[0];
-    for (int exp = 1; exp < broadcasts.length; exp++) {
-      ecc_api.ECPoint broadcast = broadcasts[exp];
+    ecc_api.ECPoint rightSide = coefficients[0];
+    for (int exp = 1; exp < coefficients.length; exp++) {
+      ecc_api.ECPoint coefficient = coefficients[exp];
       BigInt scalar = j.modPow(BigInt.from(exp), curveOrder);
-      rightSide = (rightSide + (broadcast * scalar))!;
+      rightSide = (rightSide + (coefficient * scalar))!;
     }
 
     ecc_api.ECPoint leftSide = (basePoint * share)!;
