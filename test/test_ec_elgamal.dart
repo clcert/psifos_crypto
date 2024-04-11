@@ -14,10 +14,10 @@ void main() {
     print(keyPair.privateKey.toJson());
     print(keyPair.publicKey.toJson());
 
-    final cipherText = ECElGamal.encrypt(keyPair.publicKey, plainText);
+    final cipherText = ECElGamal.encryptPlainText(keyPair.publicKey, plainText);
 
     final retrievedPlainText =
-        ECElGamal.decrypt(keyPair.privateKey, cipherText);
+        ECElGamal.decryptCipherText(keyPair.privateKey, cipherText);
     assert(retrievedPlainText.text == message);
   });
 }
