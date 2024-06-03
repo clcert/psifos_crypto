@@ -4,11 +4,12 @@ import 'dart:typed_data';
 import 'package:pointycastle/ecc/api.dart' as ecc_api;
 import 'package:pointycastle/ecc/ecc_fp.dart' as fp;
 
-import 'package:psifos_mobile_crypto/utils/convert.dart';
 import 'package:psifos_mobile_crypto/crypto/ecc/ec_dsa/export.dart';
 import 'package:psifos_mobile_crypto/crypto/ecc/ec_keypair/export.dart';
 import 'package:psifos_mobile_crypto/crypto/ecc/ec_tdkg/export.dart';
 import 'package:psifos_mobile_crypto/crypto/modp/rsa/export.dart';
+import 'package:psifos_mobile_crypto/crypto/ecc/utils/export.dart';
+import 'package:psifos_mobile_crypto/crypto/utils/export.dart';
 
 class TrusteeSyncStep1 {
   /* Parses step 1 input into usable classes */
@@ -60,7 +61,7 @@ class TrusteeSyncStep1 {
     final curveOrder = domainParams.n;
 
     /* generate the secret, scalars and coefficients */
-    final secret = ECTDKG.randomScalar(curveOrder);
+    final secret = ECRandom.randomScalar(curveOrder);
     final scalars = ECTDKG.generateScalars(secret, threshold, curveOrder);
     final coefficients = ECTDKG.generateCoefficients(scalars, basePoint);
 

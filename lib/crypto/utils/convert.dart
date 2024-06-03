@@ -1,7 +1,5 @@
 import 'dart:typed_data';
-
 import 'package:convert/convert.dart';
-import 'package:pointycastle/ecc/api.dart' as ecc_api;
 
 class Convert {
   static Uint8List fromBigIntToUint8List(BigInt bigInt) {
@@ -16,12 +14,5 @@ class Convert {
 
   static BigInt fromUint8ListToBigInt(Uint8List uint8List) {
     return BigInt.parse(hex.encode(uint8List), radix: 16);
-  }
-
-  static Map<String, dynamic> fromECPointToJson(ecc_api.ECPoint point) {
-    return {
-      'x': point.x!.toBigInteger().toString(),
-      'y': point.y!.toBigInteger().toString(),
-    };
   }
 }

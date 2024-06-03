@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:pointycastle/ecc/api.dart';
 import 'package:pointycastle/ecc/ecc_fp.dart' as fp;
-import 'package:psifos_mobile_crypto/utils/convert.dart';
+import 'package:psifos_mobile_crypto/crypto/utils/export.dart';
 
 class ECPointConverter {
   static int _messagePaddingByteSize = 3;

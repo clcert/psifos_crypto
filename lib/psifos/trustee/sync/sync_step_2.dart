@@ -7,7 +7,7 @@ import 'package:psifos_mobile_crypto/crypto/ecc/ec_dsa/export.dart';
 import 'package:psifos_mobile_crypto/crypto/ecc/ec_keypair/export.dart';
 import 'package:psifos_mobile_crypto/crypto/ecc/ec_tdkg/export.dart';
 import 'package:psifos_mobile_crypto/crypto/modp/rsa/export.dart';
-import 'package:psifos_mobile_crypto/utils/convert.dart';
+import 'package:psifos_mobile_crypto/crypto/utils/export.dart';
 
 class TrusteeSyncStep2 {
   /* Parses step 2 input into usable classes */

@@ -1,8 +1,8 @@
 import 'package:test/test.dart';
 import 'package:pointycastle/ecc/ecc_fp.dart' as fp;
 import 'package:pointycastle/ecc/curves/secp256k1.dart';
-
 import 'package:psifos_mobile_crypto/crypto/ecc/ec_tdkg/export.dart';
+import 'package:psifos_mobile_crypto/crypto/ecc/utils/export.dart';
 
 void main() {
   test('Test ECTDKG', () {
@@ -13,7 +13,7 @@ void main() {
     final basePoint = domainParams.G as fp.ECPoint;
     final curveOrder = domainParams.n;
 
-    final secret = ECTDKG.randomScalar(curveOrder);
+    final secret = ECRandom.randomScalar(curveOrder);
     final scalars = ECTDKG.generateScalars(secret, threshold, curveOrder);
     final coefficients = ECTDKG.generateCoefficients(scalars, basePoint);
 

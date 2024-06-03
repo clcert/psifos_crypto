@@ -1,28 +1,7 @@
-import 'package:pointycastle/api.dart';
 import 'package:pointycastle/ecc/api.dart' as ecc_api;
-import 'package:pointycastle/src/platform_check/platform_check.dart';
+import 'package:psifos_mobile_crypto/crypto/ecc/utils/export.dart';
 
 class ECTDKG {
-  static BigInt randomScalar(BigInt curveOrder) {
-    /*
-      Returns a random scalar in the range [1, curveOrder).
-    */
-    final secureRandom = SecureRandom("Fortuna")
-      ..seed(
-          KeyParameter(Platform.instance.platformEntropySource().getBytes(32)));
-
-    // Get the bit length of the order
-    int orderBitLength = curveOrder.bitLength;
-
-    // Generate a random integer with the same bit length as the order
-    BigInt randomInt;
-    do {
-      randomInt = secureRandom.nextBigInteger(orderBitLength);
-    } while (randomInt >= curveOrder || randomInt <= BigInt.zero);
-
-    return randomInt;
-  }
-
   static List<BigInt> generateScalars(
       BigInt secret, int threshold, BigInt curveOrder) {
     /*
@@ -31,7 +10,7 @@ class ECTDKG {
     */
     List<BigInt> scalars = [secret];
     for (int k = 0; k < threshold - 1; k++) {
-      scalars.add(randomScalar(curveOrder));
+      scalars.add(ECRandom.randomScalar(curveOrder));
     }
     return scalars;
   }
